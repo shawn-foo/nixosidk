@@ -22,7 +22,8 @@ in
     overwriteBackup = true;
     backupFileExtension = "backup";
     users.${username} = {
-      imports = [ inputs.illogical-flake.homeManagerModules.default ];
+      imports = [ ../../desktop/hyprland/home-module.nix ];
+      programs.illogical-impulse.enable = true;
       # Let Home Manager install and manage itself.
       programs.home-manager.enable = true;
       xdg.enable = true;
