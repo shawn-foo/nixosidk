@@ -22,6 +22,7 @@ in
     overwriteBackup = true;
     backupFileExtension = "backup";
     users.${username} = {
+      imports = [ inputs.illogical-flake.homeManagerModules.default ];
       # Let Home Manager install and manage itself.
       programs.home-manager.enable = true;
       xdg.enable = true;
