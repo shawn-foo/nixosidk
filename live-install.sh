@@ -912,6 +912,13 @@ echo "Hardware configuration generated."
 sed -i -e "s/username = \".*\"/username = \"$username\"/" "./hosts/$selected_host/variables.nix"
 git add * 2>/dev/null || true
 
+# Backup existing system configuration
+if [ -d "/mnt/etc/nixos" ]; then
+  info "Backing up existing system configuration in /etc/nixos..."
+  backup_dir="/mnt/etc/nixos-backup-$(date +%Y%m%d-%H%M%S)"
+  mv "/mnt/etc/nixos" "$backup_dir" || warn "Failed to backup /etc/nixos."
+fi
+
 # Copy flake to /etc/nixos
 mkdir -p /mnt/etc/nixos
 cp -r ./ /mnt/etc/nixos || {
@@ -935,8 +942,16 @@ nixos-enter --root /mnt -c "echo '$password' | passwd --stdin $username" || {
 info "Creating user directories..."
 mkdir -p "/mnt/home/$username"/{Downloads,Documents,Pictures,Videos,.local/bin}
 
+# Backup existing user configuration
+if [ -d "/mnt/home/$username/.config" ]; then
+  info "Backing up existing user .config directory..."
+  backup_dir="/mnt/home/$username/.config-backup-$(date +%Y%m%d-%H%M%S)"
+  mv "/mnt/home/$username/.config" "$backup_dir" || warn "Failed to backup .config directory."
+fi
+
 # Copy flake to ~/NixOS
 info "Copying flake to /home/$username/NixOS..."
+rm -rf "/mnt/home/$username/NixOS"
 mkdir -p "/mnt/home/$username/NixOS"
 cp -r ./ "/mnt/home/$username/NixOS/" || {
   warn "Failed to copy configuration to user's home directory."
